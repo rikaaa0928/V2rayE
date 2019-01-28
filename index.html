@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>V2ray Electron Client</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.js" integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="default.css" />
+</head>
+
+<body>
+    <div id="title-bar">
+        <div id="title">V2ray Electron Client</div>
+        <div id="title-bar-btns">
+            <!--<button id="min-btn">-</button>
+            <button id="max-btn">+</button>-->
+            <button id="close-btn" onclick="javascript:window.close()">x</button>
+        </div>
+    </div>
+    <div id="content">
+
+        <div class="card">
+            <div class="card-body">
+                <table class="table mx-auto" style="max-width: 600px;min-width: 300px;">
+                    <thead>
+                        <tr>
+                            <th class="align-middle" scope="col">#</th>
+                            <th class="align-middle" scope="col">Name</th>
+                            <th class="align-middle" scope="col">Server</th>
+                            <th class="align-middle" scope="col">Status</th>
+                            <td><button type="button" id="addB" class="btn btn-outline-secondary btn-sm">Add</button></td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th class="align-middle" scope="row">1</th>
+                            <td class="align-middle">default</td>
+                            <td class="align-middle">aa.bb.cc:1</td>
+                            <td class="align-middle" style="color:blue">NotRunning</td>
+                            <td><button type="button" class="btn btn-outline-success btn-sm">Edit</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm">Delete</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // You can also require other files to run in this process
+        require('./renderer.js')
+    </script>
+</body>
+
+</html>

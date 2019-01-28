@@ -1,0 +1,52 @@
+{
+    "root": {
+        "log": {
+            "access": "",
+            "error": "",
+            "loglevel": "warning"
+        },
+        "inbound": {
+            "port": 0,
+            "listen": "",
+            "protocol": "socks",
+            "settings": {
+                "auth": "noauth",
+                "udp": true,
+                "ip": ""
+            },
+            "domainOverride": [
+                ""
+            ]
+        },
+        "outbound": {
+            "tag": "",
+            "protocol": "vmess",
+            "settings": {
+                "vnext": [{
+                    "address": "",
+                    "port": 443,
+                    "users": [{
+                        "id": "",
+                        "alterId": 0,
+                        "security": ""
+                    }]
+                }]
+            },
+            "streamSettings": {
+                "network": "",
+                "security": "",
+                "tcpSettings": {},
+                "kcpSettings": {},
+                "wsSettings": {
+                    "connectionReuse": true,
+                    "path": "",
+                    "headers": ""
+                }
+            },
+            "mux": {
+                "enabled": true
+            }
+        },
+        "inboundDetour": ["ref:root:inbound"]
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "servers": [{
+    "id": 1,
+    "name": "default",
+    "file": "default.json"
+  }]
+}

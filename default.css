@@ -1,0 +1,76 @@
+html {
+    margin: 0px;
+    padding: 0px;
+}
+
+body {
+    padding: 0px;
+    margin: 1rem 0 0 0;
+    background-color: #2D2D30;
+    border: 0px solid #68217A;
+    border-bottom: 24px solid #68217A;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    font-size: 0.9rem;
+}
+
+#title-bar {
+    -webkit-app-region: drag;
+    height: 32px;
+    padding: 0px;
+    margin: -1rem 0 0 0;
+    color: #ADADAD;
+    font-family: sans-serif;
+}
+
+#title {
+    position: fixed;
+    top: 0px;
+    left: 12px;
+    line-height: 32px;
+    font-size: 0.95rem;
+}
+
+#title-bar-btns {
+    -webkit-app-region: no-drag;
+    position: fixed;
+    top: 1px;
+    right: 0px;
+}
+
+#title-bar-btns button {
+    height: 32px;
+    width: 32px;
+    background-color: transparent;
+    border: none;
+    color: #F1F1F1;
+    font-size: 1rem;
+}
+
+#title-bar-btns button:hover {
+    background-color: #3F3F41;
+}
+
+#content {
+    padding: 12px 12px 24px 12px;
+}
+
+#Textarea {
+    position: relative;
+    width: 100%;
+    height: 90%;
+    font-size: 0.9rem;
+}
+
+.breadcrumb {
+    padding: 0.6rem 0rem 0rem 0rem;
+    background-color: rgba(243, 155, 184, 0.815);
+    margin: 0 0 0.4rem 0;
+}
+
+.pointer {
+    cursor: pointer;
+}

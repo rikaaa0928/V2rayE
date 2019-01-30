@@ -1,7 +1,12 @@
 {
-  "servers": [{
-    "id": 1,
-    "name": "default",
-    "file": "default.json"
-  }]
+	"servers": [
+		{
+			"name": "default",
+			"file": "default.json"
+		},
+		{
+			"file": "new.1.json",
+			"name": "new.1"
+		}
+	]
 }

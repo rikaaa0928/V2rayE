@@ -1,32 +1,52 @@
 const $ = require("jquery");
-const path = require('path');
+const fs = require('fs');
+//const path = require('path');
 const parseConfigFile = require('./tools').parseConfigFile;
 const parseValue = require('./tools').parseValue;
 const saveToFile = require('./tools').saveToFile;
 let configObject = {};
-const get_paras = global.location.search.split('?')[1].split('=');
-let fileName = '';
 let currentPath = ['root'];
 const defineObject = parseConfigFile("struct.json");
+let server_index = -1;
+let fileName = '';
 
 function init() {
+    const get_paras = global.location.search.split('?')[1].split('=');
     if (get_paras[0] != 'x') {
         return;
     }
-    let server_index = get_paras[1];
+    server_index = get_paras[1];
     let guiConfig = parseConfigFile('guiConfig.json');
-    if (get_paras[1] < 0 || server_index >= guiConfig.servers.length) {
-        return;
+    if (server_index < 0 || server_index >= guiConfig.servers.length) {
+        fileName = "new.json";
+    } else {
+        fileName = guiConfig.servers[server_index].file;
+        configObject = parseConfigFile(fileName);
     }
-    fileName = guiConfig.servers[server_index].file;
-    configObject = parseConfigFile(fileName);
     $("#filename").val(fileName);
     updatePageText();
     updatePagePath();
 }
 
 function saveFile() {
-    saveToFile($("#filename").val(), JSON.stringify(configObject, null, '\t'))
+    if (fileName != $("#filename").val()) {
+        fs.unlinkSync(fileName);
+    }
+    if (!saveToFile($("#filename").val(), JSON.stringify(configObject, null, '\t'))) {
+        return;
+    }
+    alert("saved!");
+    fileName = $("#filename").val();
+    let guiConfig = parseConfigFile('guiConfig.json');
+    let i = server_index;
+    if (server_index < 0 || server_index >= guiConfig.servers.length) {
+        i = guiConfig.servers.length;
+        guiConfig.servers.push({})
+    }
+    //console.log(filename.lastIndexOf('.'), filename.substring(0, filename.lastIndexOf('.')))
+    guiConfig.servers[i].file = fileName;
+    guiConfig.servers[i].name = fileName.substring(0, fileName.lastIndexOf('.'));
+    saveToFile('guiConfig.json', JSON.stringify(guiConfig, null, '\t'))
 }
 
 function getCurrentObject(jsonI) {
@@ -230,8 +250,6 @@ function customOnblur() {
         $('#cInput').val("custom value");
     }
 }
-
-
 
 function editKeyValue(keyName) {
     let thisConfigObject = getCurrentObject(configObject);

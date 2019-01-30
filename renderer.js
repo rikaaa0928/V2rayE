@@ -2,10 +2,18 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 const $ = require("jquery");
+const fs = require('fs');
 const BrowserWindow = require('electron').remote.BrowserWindow;
 const parseConfigFile = require('./tools').parseConfigFile;
+const saveToFile = require('./tools').saveToFile;
 const path = require('path');
 let guiConfig = {};
+const t = $("tbody");
+const tmp = t.html();
+const {
+    spawn
+} = require('child_process');
+let childProcess = {};
 
 function configWindow(action) {
     const modalPath = path.join('file://', __dirname, 'config.html?x=' + action);
@@ -13,59 +21,86 @@ function configWindow(action) {
         frame: true
     });
     win.on('close', function () {
-        win = null
+        win = null;
+        init();
     });
     win.loadURL(modalPath);
-    win.show()
+    win.show();
 }
 
 $("#addB").on('click', function () {
-    configWindow(-1)
+    configWindow(-1);
 });
 
 function init() {
-    //let err, data = fs.readFileSync('guiConfig.json', 'utf8');
-    //if (err) throw err;
-    //console.log(data);
-    //guiConfig = JSON.parse(data);
-    guiConfig = parseConfigFile('guiConfig.json')
-    //console.log(obj.servers);
-    updateList(guiConfig)
+    guiConfig = parseConfigFile('guiConfig.json');
+    updateList(guiConfig);
 }
 
 init();
 
 function updateList(obj) {
-    let t = $("tbody");
-    let ftr = $("tbody tr:first");
-    let tmp = Object.assign({}, ftr);
+    //let ftr = $("tbody tr:first");
     t.html("");
     for (let i = 0; i < obj.servers.length; i++) {
         t.append(tmp);
         let c = t.find("tr").last();
-        console.log(c.html());
         c.find("th").eq(0)[0].innerText = i + 1;
         let tds = c.find("td");
         tds.eq(0)[0].innerText = obj.servers[i].name;
         let conf = parseConfigFile(obj.servers[i].file);
-        console.log(conf.inbound.listen + ":" + conf.inbound.port);
-        //console.log(tds.eq(1));
-        tds.eq(1)[0].innerText = conf.inbound.listen + ":" + conf.inbound.port;
-        //console.log(tds.eq(2)[0]);
-        $(tds.eq(3)[0]).find("button:first").on("click", function () {
-            configWindow(i)
-        });
-        //console.log(tds.eq(3));
-        $(tds.eq(4)[0]).find("button:first").on("click", function () {
 
-        })
+        tds.eq(1)[0].innerText = conf.inbound.listen + ":" + conf.inbound.port;
+        $(tds.eq(1)[0]).attr("id", "server" + i);
+        $(tds.eq(2)[0]).attr("id", "status" + i);
+        $(tds.eq(2)[0]).on("click", function () {
+            if (childProcess[obj.servers[i].file] == undefined) {
+                startServer(obj.servers[i].file, i);
+            } else {
+                stopServer(obj.servers[i].file);
+            }
+        });
+        $(tds.eq(3)[0]).find("button:first").on("click", function () {
+            configWindow(i);
+        });
+        $(tds.eq(4)[0]).find("button:first").attr("id", "delete" + i);
+        $(tds.eq(4)[0]).find("button:first").on("click", function () {
+            if ($("#delete" + i).html() != "Really?") {
+                $("#delete" + i).html("Really?");
+            } else {
+                deleteConfig(i);
+            }
+        });
     }
 }
 
-/*function parseConfigFile(name) {
-    let err, data = fs.readFileSync(name, 'utf8');
-    if (err) throw err;
-    //console.log(data);
-    //console.log(obj.outbound);
-    return JSON.parse(data)
-}*/
+function deleteConfig(i) {
+    fs.unlinkSync(guiConfig.servers[i].file);
+    guiConfig.servers.splice(i, 1);
+    saveToFile("guiConfig.json", JSON.stringify(guiConfig, null, '\t'));
+    init();
+}
+
+function startServer(fileName, i) {
+    let exePath = path.join(__dirname, 'core/v2ray');
+    let confPath = path.join(__dirname, fileName);
+    $("#status" + i).html("Running");
+    childProcess[fileName] = spawn(exePath, ['-config', confPath]);
+    childProcess[fileName].stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+
+    childProcess[fileName].stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
+    });
+
+    childProcess[fileName].on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+        $("#status" + i).html("Not Running");
+        delete childProcess[fileName]
+    });
+}
+
+function stopServer(fileName) {
+    childProcess[fileName].kill();
+}

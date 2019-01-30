@@ -27,11 +27,13 @@ module.exports = {
         return String(data)
     },
     saveToFile: function (file, data) {
+        let state = true;
         fs.writeFile(file, data, function (err) {
             if (err) {
+                state = false;
                 return console.error(err);
             }
         });
-        alert("saved!");
+        return state;
     }
 };

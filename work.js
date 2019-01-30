@@ -180,7 +180,17 @@ function deleteKey(event, keyName) {
         return;
     }
     let thisConfigObject = getCurrentObject(configObject);
-    delete thisConfigObject[keyName];
+    console.log(thisConfigObject)
+    if (Array.isArray(thisConfigObject)) {
+        console.log(thisConfigObject)
+        var index = Number(keyName);
+        if (index > -1) {
+            thisConfigObject.splice(index, 1);
+        }
+        console.log(thisConfigObject)
+    } else {
+        delete thisConfigObject[keyName];
+    }
     updatePagePath();
     updatePageText();
 }
@@ -225,9 +235,6 @@ function customOnblur() {
 
 function editKeyValue(keyName) {
     let thisConfigObject = getCurrentObject(configObject);
-    console.log(JSON.stringify(thisConfigObject, null, '\t'))
-    console.log(keyName)
-    console.log(parseValue($('#' + keyName).val()))
     thisConfigObject[keyName] = parseValue($('#' + keyName).val());
     updatePageText();
     updatePagePath();

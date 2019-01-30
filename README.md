@@ -5,4 +5,4 @@ v2ray client and json config editor
 main.1.js为编辑器入口
 main.js为软件主入口
 
-编辑器ref功能
+编辑器ref功能待实现

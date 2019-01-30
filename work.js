@@ -2,6 +2,7 @@ const $ = require("jquery");
 const path = require('path');
 const parseConfigFile = require('./tools').parseConfigFile;
 const parseValue = require('./tools').parseValue;
+const saveToFile = require('./tools').saveToFile;
 let configObject = {};
 const get_paras = global.location.search.split('?')[1].split('=');
 let fileName = '';
@@ -19,8 +20,13 @@ function init() {
     }
     fileName = guiConfig.servers[server_index].file;
     configObject = parseConfigFile(fileName);
+    $("#filename").val(fileName);
     updatePageText();
     updatePagePath();
+}
+
+function saveFile() {
+    saveToFile($("#filename").val(), JSON.stringify(configObject, null, '\t'))
 }
 
 function getCurrentObject(jsonI) {
@@ -88,7 +94,12 @@ function updatePagePath() {
 
         }
     }
-    appendCustom("custom value");
+    if (Array.isArray(thisConfigObject)) {
+        appendCustom("list");
+    } else {
+        appendCustom("");
+    }
+
 }
 
 function backPathTo(i) {
@@ -106,8 +117,33 @@ function appendAvaliableKeys(keyName, valueType) {
 }
 
 function appendCustom(value) {
-    $("#aKeys").append('<div> <input type="text" id="cInput" onblur="customOnblur()" onfocus="customOnfocus();" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="' + value + '" />' + '</div>');
-    $('#cInput').on('keyup', customKeyup);
+    if (value == "list") {
+        $("#aKeys").append('<button type="button" onclick="appendToList(\'object\')" class="pointer btn-sm btn-outline-primary">Add Object</button>');
+        $("#aKeys").append('<button type="button" onclick="appendToList(\'string\')" class="pointer btn-sm btn-outline-primary">Add String</button>');
+    } else {
+        $("#aKeys").append('<div> <input type="text" id="cInput" onblur="customOnblur()" onfocus="customOnfocus();" class="form-control" aria-label="Small" aria-describedby="inputGroup-sizing-sm" value="custom value" />' + '</div>');
+        $('#cInput').on('keyup', customKeyup);
+    }
+}
+
+function appendToList(str) {
+    let thisConfigObject = getCurrentObject(configObject);
+    if (!Array.isArray(thisConfigObject)) {
+        console.error("not list!");
+        return;
+    }
+    switch (str) {
+        case "string":
+            thisConfigObject.push("");
+            break;
+        case "object":
+            thisConfigObject.push({});
+            break;
+        default:
+            console.error("type error!");
+    }
+    updatePageText();
+    updatePagePath();
 }
 
 function appendCurrentKeys(keyName, value) {
@@ -153,6 +189,9 @@ function appendKey(keyName, valueType) {
     let thisConfigObject = getCurrentObject(configObject);
 
     switch (valueType) {
+        case "[]":
+            thisConfigObject[keyName] = [];
+            break;
         case "object":
         case "{}":
             thisConfigObject[keyName] = {};

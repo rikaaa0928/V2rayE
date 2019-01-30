@@ -1,76 +1,83 @@
 {
-  "inbound": {
-    "port": 0,
-    "listen": "0.0.0.0",
-    "protocol": "socks",
-    "settings": {
-      "auth": "noauth",
-      "udp": true,
-      "ip": "127.0.0.1"
-    },
-    "domainOverride": [
-      "http",
-      "tls"
-    ]
-  },
-  "outbound": {
-    "tag": "",
-    "protocol": "vmess",
-    "settings": {
-      "vnext": [{
-        "address": "",
-        "port": 0,
-        "users": [{
-          "id": "",
-          "alterId": 0,
-          "security": "aes-128-gcm"
-        }]
-      }]
-    },
-    "streamSettings": {
-      "network": "ws",
-      "security": "",
-      "wsSettings": {
-        "connectionReuse": true,
-        "path": ""
-      }
-    },
-    "mux": {
-      "enabled": true
-    }
-  },
-  "outboundDetour": [{
-      "protocol": "freedom",
-      "settings": {},
-      "tag": ""
-    },
-    {
-      "protocol": "blackhole",
-      "settings": {
-        "response": {
-          "type": "http"
-        }
-      },
-      "tag": ""
-    }
-  ],
-  "dns": {
-    "servers": [
-      ""
-    ]
-  },
-  "routing": {
-    "strategy": "rules",
-    "settings": {
-      "domainStrategy": "IPIfNonMatch",
-      "rules": [{
-        "type": "field",
-        "port": null,
-        "outboundTag": "direct",
-        "ip": [
-          "0.0.0.0/8"
-        ]
-      }]
-    }
-  }
+	"inbound": {
+		"port": 0,
+		"listen": "0.0.0.0",
+		"protocol": "socks",
+		"settings": {
+			"auth": "noauth",
+			"udp": true,
+			"ip": "127.0.0.1"
+		},
+		"domainOverride": [
+			"http",
+			"tls"
+		]
+	},
+	"outbound": {
+		"tag": "",
+		"protocol": "vmess",
+		"settings": {
+			"vnext": [
+				{
+					"address": "",
+					"port": 0,
+					"users": [
+						{
+							"id": "",
+							"alterId": 0,
+							"security": "aes-128-gcm"
+						}
+					]
+				}
+			]
+		},
+		"streamSettings": {
+			"network": "ws",
+			"security": "",
+			"wsSettings": {
+				"connectionReuse": true,
+				"path": ""
+			}
+		},
+		"mux": {
+			"enabled": true
+		}
+	},
+	"outboundDetour": [
+		{
+			"protocol": "freedom",
+			"settings": {},
+			"tag": ""
+		},
+		{
+			"protocol": "blackhole",
+			"settings": {
+				"response": {
+					"type": "http"
+				}
+			},
+			"tag": ""
+		}
+	],
+	"dns": {
+		"servers": [
+			""
+		]
+	},
+	"routing": {
+		"strategy": "rules",
+		"settings": {
+			"domainStrategy": "IPIfNonMatch",
+			"rules": [
+				{
+					"type": "field",
+					"port": null,
+					"outboundTag": "direct",
+					"ip": [
+						"0.0.0.0/8"
+					]
+				}
+			]
+		}
+	}
 }

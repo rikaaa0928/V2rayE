@@ -25,5 +25,13 @@ module.exports = {
             return n;
         }
         return String(data)
+    },
+    saveToFile: function (file, data) {
+        fs.writeFile(file, data, function (err) {
+            if (err) {
+                return console.error(err);
+            }
+        });
+        alert("saved!");
     }
 };

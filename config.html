@@ -78,7 +78,15 @@
                     </div>
                     <div class="col-sm">
                         <!--<div class="form-group">-->
-                        <label for="Textarea">Json File</label>
+                        <label for="Textarea" class="nonp w-100">
+                            <div class="input-group nonp">
+                                <input type="text" class="form-control" placeholder="file name" aria-label="file name"
+                                    id="filename" aria-describedby="basic-addon2">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" onclick="saveFile()" type="button">Save</button>
+                                </div>
+                            </div>
+                        </label>
                         <textarea id="Textarea" oninput="textAreaInput()" rows="10"></textarea>
                         <!--</div>-->
                         <!--</div>-->

@@ -1,0 +1,11 @@
+{
+    "name": "v2ray_electron",
+    "productName": "v2ray electron client",
+    "version": "0.1.0",
+    "main": "main.js",
+    "devDependencies": {
+        "electron": "4.0.1",
+        "electron-packager": "6.4.1",
+        "jquery": "3.3.1"
+    }
+}

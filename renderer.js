@@ -19,7 +19,7 @@ let penddinDelete = [];
 function configWindow(action) {
     const modalPath = path.join('file://', __dirname, 'config.html?x=' + action);
     let win = new BrowserWindow({
-        frame: true
+        frame: false
     });
     win.on('close', function () {
         win = null;

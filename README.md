@@ -9,7 +9,7 @@ struct.json用于定义输入结构，暂不完全，用户可自定义
 guiCOnfig.json用于软件设置  
 "auto": int, 自动启动的配置文件编号，小于0或不设置则不自动启动  
 "startup": bool, 开机启动（暂不支持）  
-"min": true， 自动最小化  
+"min": bool， 自动最小化  
 
 ![](https://github.com/Evi1/V2rayE/blob/master/img/editor1.PNG)  
 ![](https://github.com/Evi1/V2rayE/blob/master/img/editor2.PNG)  

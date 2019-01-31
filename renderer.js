@@ -7,13 +7,14 @@ const BrowserWindow = require('electron').remote.BrowserWindow;
 const parseConfigFile = require('./tools').parseConfigFile;
 const saveToFile = require('./tools').saveToFile;
 const path = require('path');
-let guiConfig = {};
+let guiConfig = parseConfigFile('guiConfig.json');
 const t = $("tbody");
 const tmp = t.html();
 const {
     spawn
 } = require('child_process');
 let childProcess = {};
+let penddinDelete = [];
 
 function configWindow(action) {
     const modalPath = path.join('file://', __dirname, 'config.html?x=' + action);
@@ -32,12 +33,25 @@ $("#addB").on('click', function () {
     configWindow(-1);
 });
 
+$("body").on("click", function () {
+    while (penddinDelete.length >= 1) {
+        let id = penddinDelete.pop();
+        $(id).html("Delete");
+    }
+});
+
 function init() {
     guiConfig = parseConfigFile('guiConfig.json');
     updateList(guiConfig);
 }
 
 init();
+
+if (guiConfig.auto != undefined && guiConfig.auto >= 0) {
+    let i = guiConfig.auto;
+    let fileName = guiConfig.servers[i].file;
+    startServer(fileName, i);
+}
 
 function updateList(obj) {
     //let ftr = $("tbody tr:first");
@@ -49,8 +63,11 @@ function updateList(obj) {
         let tds = c.find("td");
         tds.eq(0)[0].innerText = obj.servers[i].name;
         let conf = parseConfigFile(obj.servers[i].file);
-
-        tds.eq(1)[0].innerText = conf.inbound.listen + ":" + conf.inbound.port;
+        try {
+            tds.eq(1)[0].innerText = conf.inbound.listen + ":" + conf.inbound.port;
+        } catch {
+            tds.eq(1)[0].innerText = "undefined";
+        }
         $(tds.eq(1)[0]).attr("id", "server" + i);
         $(tds.eq(2)[0]).attr("id", "status" + i);
         $(tds.eq(2)[0]).on("click", function () {
@@ -64,9 +81,12 @@ function updateList(obj) {
             configWindow(i);
         });
         $(tds.eq(4)[0]).find("button:first").attr("id", "delete" + i);
-        $(tds.eq(4)[0]).find("button:first").on("click", function () {
+        $(tds.eq(4)[0]).find("button:first").on("click", function (e) {
+            e.stopPropagation();
             if ($("#delete" + i).html() != "Really?") {
+                penddinDelete.push("#delete" + i);
                 $("#delete" + i).html("Really?");
+                console.log(penddinDelete);
             } else {
                 deleteConfig(i);
             }

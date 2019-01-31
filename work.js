@@ -29,7 +29,7 @@ function init() {
 }
 
 function saveFile() {
-    if (fileName != $("#filename").val()) {
+    if (server_index != -1 && fileName != $("#filename").val()) {
         fs.unlinkSync(fileName);
     }
     if (!saveToFile($("#filename").val(), JSON.stringify(configObject, null, '\t'))) {

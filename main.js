@@ -1,17 +1,26 @@
-const electron = require('electron')
+const electron = require('electron');
 // Module to control application life.
-const app = electron.app
+const app = electron.app;
 // Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
-
+const BrowserWindow = electron.BrowserWindow;
+const Menu = electron.Menu;
+const Tray = electron.Tray;
 const path = require('path');
 const url = require('url');
+const parseConfigFile = require('./tools').parseConfigFile;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow = null;
+let tray = null;
+let isQuiting = false;
+app.on('before-quit', function () {
+  isQuiting = true;
+});
 
 function createWindow() {
+  tray = new Tray(path.join(__dirname, 'logo.ico'))
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 800,
@@ -27,13 +36,40 @@ function createWindow() {
     protocol: 'file:',
     slashes: true
   }))
+
+  const contextMenu = Menu.buildFromTemplate([{
+      label: 'Show App',
+      click: function () {
+        mainWindow.show()
+      }
+    },
+    {
+      label: 'Quit',
+      click: function () {
+        isQuiting = true
+        app.quit()
+      }
+    }
+  ]);
+  tray.setToolTip('This is my application.')
+  tray.setContextMenu(contextMenu)
+
   mainWindow.on('resize', updateReply)
   mainWindow.on('move', updateReply)
 
   function updateReply() {
 
   }
-
+  mainWindow.on('close', function (event) {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    if (!isQuiting) {
+      event.preventDefault();
+      mainWindow.hide();
+      event.returnValue = false;
+    }
+  })
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 
@@ -44,6 +80,10 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null
   })
+  let guiConfig = parseConfigFile('guiConfig.json');
+  if (guiConfig.min) {
+    mainWindow.hide();
+  }
 }
 
 // This method will be called when Electron has finished

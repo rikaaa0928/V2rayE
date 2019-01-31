@@ -1,6 +1,5 @@
 {
-	"servers": [
-		{
+	"servers": [{
 			"name": "default",
 			"file": "default.json"
 		},
@@ -8,5 +7,8 @@
 			"file": "new.1.json",
 			"name": "new.1"
 		}
-	]
+	],
+	"auto": 1,
+	"startup": true,
+	"min": true
 }

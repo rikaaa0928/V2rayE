@@ -57,6 +57,7 @@ function saveFile() {
     guiConfig.servers[i].file = fileName;
     guiConfig.servers[i].name = fileName.substring(0, fileName.lastIndexOf('.'));
     saveToFile(guiCOnfigFilePath, JSON.stringify(guiConfig, null, '\t'))
+    server_index = i;
 }
 
 function getCurrentObject(jsonI) {

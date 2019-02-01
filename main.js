@@ -26,7 +26,7 @@ function createWindow() {
     width: 800,
     height: 600,
     transparent: false,
-    frame: true,
+    frame: false,
     minWidth: 400
   })
 
@@ -71,7 +71,7 @@ function createWindow() {
     }
   })
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -80,7 +80,16 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null
   })
-  let guiConfig = parseConfigFile('guiConfig.json');
+
+  let PORTABLE_EXECUTABLE_DIR = '';
+  if (process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
+    PORTABLE_EXECUTABLE_DIR = __dirname
+  } else {
+    PORTABLE_EXECUTABLE_DIR = process.env.PORTABLE_EXECUTABLE_DIR
+  }
+
+  let guiCOnfigFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'guiConfig.json');
+  let guiConfig = parseConfigFile(guiCOnfigFilePath);
   if (guiConfig.min) {
     mainWindow.hide();
   }

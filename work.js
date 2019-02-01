@@ -1,12 +1,23 @@
 const $ = require("jquery");
 const fs = require('fs');
-//const path = require('path');
+const {
+    remote
+} = window.require('electron');
+const path = require('path');
 const parseConfigFile = require('./tools').parseConfigFile;
 const parseValue = require('./tools').parseValue;
 const saveToFile = require('./tools').saveToFile;
 let configObject = {};
 let currentPath = ['root'];
-const defineObject = parseConfigFile("struct.json");
+let PORTABLE_EXECUTABLE_DIR = '';
+if (remote.process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
+    PORTABLE_EXECUTABLE_DIR = __dirname
+} else {
+    PORTABLE_EXECUTABLE_DIR = remote.process.env.PORTABLE_EXECUTABLE_DIR
+}
+let guiCOnfigFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'guiConfig.json');
+let structFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'struct.json');
+const defineObject = parseConfigFile(structFilePath);
 let server_index = -1;
 let fileName = '';
 
@@ -16,12 +27,12 @@ function init() {
         return;
     }
     server_index = get_paras[1];
-    let guiConfig = parseConfigFile('guiConfig.json');
+    let guiConfig = parseConfigFile(guiCOnfigFilePath);
     if (server_index < 0 || server_index >= guiConfig.servers.length) {
         fileName = "new.json";
     } else {
         fileName = guiConfig.servers[server_index].file;
-        configObject = parseConfigFile(fileName);
+        configObject = parseConfigFile(path.join(PORTABLE_EXECUTABLE_DIR, fileName));
     }
     $("#filename").val(fileName);
     updatePageText();
@@ -32,21 +43,20 @@ function saveFile() {
     if (server_index != -1 && fileName != $("#filename").val()) {
         fs.unlinkSync(fileName);
     }
-    if (!saveToFile($("#filename").val(), JSON.stringify(configObject, null, '\t'))) {
+    if (!saveToFile(path.join(PORTABLE_EXECUTABLE_DIR, $("#filename").val()), JSON.stringify(configObject, null, '\t'))) {
         return;
     }
     alert("saved!");
     fileName = $("#filename").val();
-    let guiConfig = parseConfigFile('guiConfig.json');
+    let guiConfig = parseConfigFile(guiCOnfigFilePath);
     let i = server_index;
     if (server_index < 0 || server_index >= guiConfig.servers.length) {
         i = guiConfig.servers.length;
         guiConfig.servers.push({})
     }
-    //console.log(filename.lastIndexOf('.'), filename.substring(0, filename.lastIndexOf('.')))
     guiConfig.servers[i].file = fileName;
     guiConfig.servers[i].name = fileName.substring(0, fileName.lastIndexOf('.'));
-    saveToFile('guiConfig.json', JSON.stringify(guiConfig, null, '\t'))
+    saveToFile(guiCOnfigFilePath, JSON.stringify(guiConfig, null, '\t'))
 }
 
 function getCurrentObject(jsonI) {
@@ -200,14 +210,11 @@ function deleteKey(event, keyName) {
         return;
     }
     let thisConfigObject = getCurrentObject(configObject);
-    console.log(thisConfigObject)
     if (Array.isArray(thisConfigObject)) {
-        console.log(thisConfigObject)
         var index = Number(keyName);
         if (index > -1) {
             thisConfigObject.splice(index, 1);
         }
-        console.log(thisConfigObject)
     } else {
         delete thisConfigObject[keyName];
     }

@@ -4,8 +4,6 @@ module.exports = {
     parseConfigFile: function (name) {
         let err, data = fs.readFileSync(name, 'utf8');
         if (err) throw err;
-        //console.log(data);
-        //console.log(obj.outbound);
         return JSON.parse(data)
     },
     parseValue: function (data) {

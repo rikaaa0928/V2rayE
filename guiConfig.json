@@ -1,5 +1,6 @@
 {
-	"servers": [{
+	"servers": [
+		{
 			"name": "default",
 			"file": "default.json"
 		},

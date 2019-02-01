@@ -5,7 +5,45 @@
     "main": "main.js",
     "devDependencies": {
         "electron": "4.0.1",
-        "electron-packager": "6.4.1",
-        "jquery": "3.3.1"
+        "electron-builder": "^20.38.5",
+        "jquery": "^3.3.1"
+    },
+    "build": {
+        "appId": "network.bilibili.v2raye",
+        "productName": "v2ray_electron",
+        "win": {
+            "target": "portable",
+            "icon": "logo.ico"
+        },
+        "files": [
+            "**/*",
+            "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+            "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+            "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+            "!.editorconfig",
+            "!.vscode",
+            "!.idea",
+            "!img",
+            "!core",
+            "default.json",
+            "guiConfig.json",
+            "new.1.json",
+            "struct.json",
+            "main.1.js",
+            "!**/._*",
+            "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+            "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+            "!**/{appveyor.yml,.travis.yml,circle.yml}",
+            "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+        ]
+    },
+    "scripts": {
+        "start": "npm install && electron .",
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder",
+        "postinstall": "electron-builder install-app-deps"
+    },
+    "dependencies": {
+        "jquery": "^3.3.1"
     }
 }

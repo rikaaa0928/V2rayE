@@ -41,7 +41,7 @@ function init() {
 
 function saveFile() {
     if (server_index != -1 && fileName != $("#filename").val()) {
-        fs.unlinkSync(fileName);
+        fs.unlinkSync(path.join(PORTABLE_EXECUTABLE_DIR, fileName));
     }
     if (!saveToFile(path.join(PORTABLE_EXECUTABLE_DIR, $("#filename").val()), JSON.stringify(configObject, null, '\t'))) {
         return;

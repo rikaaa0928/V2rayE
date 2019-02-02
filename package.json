@@ -12,7 +12,7 @@
         "appId": "network.bilibili.v2raye",
         "productName": "v2ray_electron",
         "win": {
-            "target": "portable",
+            "target": "zip",
             "icon": "logo.ico"
         },
         "files": [

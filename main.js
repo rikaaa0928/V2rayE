@@ -51,7 +51,7 @@ function createWindow() {
       }
     }
   ]);
-  tray.setToolTip('V2ray Electron.')
+  tray.setToolTip('V2ray Electron')
   tray.setContextMenu(contextMenu)
 
   mainWindow.on('resize', updateReply)

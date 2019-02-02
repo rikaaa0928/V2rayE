@@ -12,7 +12,7 @@
         "appId": "network.bilibili.v2raye",
         "productName": "v2ray_electron",
         "win": {
-            "target": "zip",
+            "target": "portable",
             "icon": "logo.ico"
         },
         "files": [
@@ -25,11 +25,11 @@
             "!.idea",
             "!img",
             "!core",
-            "default.json",
-            "guiConfig.json",
-            "new.1.json",
-            "struct.json",
-            "main.1.js",
+            "!default.json",
+            "!guiConfig.json",
+            "!new.1.json",
+            "!struct.json",
+            "!main.1.js",
             "!**/._*",
             "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
             "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",

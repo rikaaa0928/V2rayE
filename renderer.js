@@ -27,9 +27,7 @@ const {
 let childProcess = {};
 let penddinDelete = [];
 
-//console.log(__dirname);
-//console.log(remote.process.env.PORTABLE_EXECUTABLE_DIR);
-//console.log(PORTABLE_EXECUTABLE_DIR);
+//alert(__dirname + "\n" + remote.process.env.PORTABLE_EXECUTABLE_DIR + "\n" + remote.app.getAppPath()+ "\n" + remote.app.getAppPath("exe"))
 
 function configWindow(action) {
     const modalPath = path.join('file://', __dirname, 'config.html?x=' + action);

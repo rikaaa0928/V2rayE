@@ -5,7 +5,7 @@
             "error": "",
             "loglevel": "warning"
         },
-        "inbound": {
+        "inbounds": [{
             "port": 0,
             "listen": "",
             "protocol": "socks",
@@ -17,8 +17,8 @@
             "domainOverride": [
                 ""
             ]
-        },
-        "outbound": {
+        }],
+        "outbounds": [{
             "tag": "",
             "protocol": "vmess",
             "settings": {
@@ -46,7 +46,6 @@
             "mux": {
                 "enabled": true
             }
-        },
-        "inboundDetour": ["ref:root:inbound"]
+        }]
     }
 }

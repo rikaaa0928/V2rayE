@@ -16,8 +16,8 @@ if (remote.process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
 } else {
     PORTABLE_EXECUTABLE_DIR = remote.process.env.PORTABLE_EXECUTABLE_DIR
 }
-let guiCOnfigFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'guiConfig.json');
-let guiConfig = parseConfigFile(guiCOnfigFilePath);
+let guiConfigFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'guiConfig.json');
+let guiConfig = parseConfigFile(guiConfigFilePath);
 const tbody = $("tbody");
 let runningProcess = [];
 const tmp = tbody.html();
@@ -55,7 +55,7 @@ $("body").on("click", function () {
 });
 
 function init() {
-    guiConfig = parseConfigFile(guiCOnfigFilePath);
+    guiConfig = parseConfigFile(guiConfigFilePath);
     updateList(guiConfig);
 }
 
@@ -65,6 +65,31 @@ if (guiConfig.auto != undefined && guiConfig.auto >= 0) {
     let i = guiConfig.auto;
     let fileName = guiConfig.servers[i].file;
     startServer(fileName, i);
+}
+
+function getPorts(conf) {
+    if (conf.inbound != undefined) {
+        return conf.inbound.listen + ":" + conf.inbound.port;
+    } else if (conf.inbounds != undefined) {
+        let str = "";
+        for (let i = 0; i < conf.inbounds.length; i++) {
+            switch (conf.inbounds[i].protocol) {
+                case "http":
+                    str += "H:" + conf.inbounds[i].port + ";";
+                    break;
+                case "socks":
+                    str += "S:" + conf.inbounds[i].port + ";";
+                    break;
+                default:
+                    str += "?:" + conf.inbounds[i].port + ";";
+            }
+        }
+        if (str.length > 0) {
+            str = str.substring(0, str.length - 1);
+        }
+        return str;
+    }
+    return "undefined";
 }
 
 function updateList(obj) {
@@ -78,7 +103,7 @@ function updateList(obj) {
         tds.eq(0)[0].innerText = obj.servers[i].name;
         let conf = parseConfigFile(path.join(PORTABLE_EXECUTABLE_DIR, obj.servers[i].file));
         try {
-            tds.eq(1)[0].innerText = conf.inbound.listen + ":" + conf.inbound.port;
+            tds.eq(1)[0].innerText = getPorts(conf);
         } catch {
             tds.eq(1)[0].innerText = "undefined";
         }
@@ -114,7 +139,7 @@ function updateList(obj) {
 function deleteConfig(i) {
     fs.unlinkSync(path.join(PORTABLE_EXECUTABLE_DIR, guiConfig.servers[i].file));
     guiConfig.servers.splice(i, 1);
-    saveToFile(guiCOnfigFilePath, JSON.stringify(guiConfig, null, '\t'));
+    saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
     init();
 }
 

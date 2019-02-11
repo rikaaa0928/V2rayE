@@ -9,17 +9,51 @@ const parseValue = require('./tools').parseValue;
 const saveToFile = require('./tools').saveToFile;
 let configObject = {};
 let currentPath = ['root'];
-let PORTABLE_EXECUTABLE_DIR = '';
+let REAL_DIR = '';
 if (remote.process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
-    PORTABLE_EXECUTABLE_DIR = __dirname
+    REAL_DIR = __dirname;
 } else {
-    PORTABLE_EXECUTABLE_DIR = remote.process.env.PORTABLE_EXECUTABLE_DIR
+    REAL_DIR = remote.process.env.PORTABLE_EXECUTABLE_DIR;
 }
-let guiCOnfigFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'guiConfig.json');
-let structFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'struct.json');
+let guiCOnfigFilePath = path.join(REAL_DIR, 'guiConfig.json');
+let structFilePath = path.join(REAL_DIR, 'struct.json');
 const defineObject = parseConfigFile(structFilePath);
 let server_index = -1;
 let fileName = '';
+
+function convertConfig(conf) {
+    let newConf = JSON.parse(JSON.stringify(conf));
+    if (conf.inbounds == undefined) {
+        newConf.inbounds = [];
+    }
+    if (conf.outbounds == undefined) {
+        newConf.outbounds = [];
+    }
+    if (conf.inbound != undefined) {
+        let inbound = JSON.parse(JSON.stringify(conf.inbound));
+        newConf.inbounds = newConf.inbounds.concat(inbound);
+        delete newConf.inbound;
+    }
+    if (conf.outbound != undefined) {
+        outbound = JSON.parse(JSON.stringify(conf.outbound));
+        newConf.outbounds = newConf.outbounds.concat(outbound);
+        delete newConf.outbound;
+    }
+    if (conf.inboundDetour != undefined) {
+        //inboundDetour = JSON.parse(JSON.stringify(conf.inboundDetour));
+        newConf.inbounds = newConf.inbounds.concat(conf.inboundDetour);
+        /*for (let i = 0; i < conf.inboundDetour.length; i++) {
+            newConf.inbounds.append(conf.inboundDetour[i]);
+        }*/
+        delete newConf.inboundDetour;
+    }
+    if (conf.outboundDetour != undefined) {
+        //outboundDetour = JSON.parse(JSON.stringify(conf.outboundDetour));
+        newConf.outbounds = newConf.outbounds.concat(conf.outboundDetour);
+        delete newConf.outboundDetour;
+    }
+    return newConf;
+}
 
 function init() {
     const get_paras = global.location.search.split('?')[1].split('=');
@@ -32,7 +66,7 @@ function init() {
         fileName = "new.json";
     } else {
         fileName = guiConfig.servers[server_index].file;
-        configObject = parseConfigFile(path.join(PORTABLE_EXECUTABLE_DIR, fileName));
+        configObject = parseConfigFile(path.join(REAL_DIR, fileName));
     }
     $("#filename").val(fileName);
     updatePageText();
@@ -41,9 +75,9 @@ function init() {
 
 function saveFile() {
     if (server_index != -1 && fileName != $("#filename").val()) {
-        fs.unlinkSync(path.join(PORTABLE_EXECUTABLE_DIR, fileName));
+        fs.unlinkSync(path.join(REAL_DIR, fileName));
     }
-    if (!saveToFile(path.join(PORTABLE_EXECUTABLE_DIR, $("#filename").val()), JSON.stringify(configObject, null, '\t'))) {
+    if (!saveToFile(path.join(REAL_DIR, $("#filename").val()), JSON.stringify(configObject, null, '\t'))) {
         return;
     }
     alert("saved!");
@@ -68,7 +102,20 @@ function getCurrentObject(jsonI) {
     return thisConfigOnject;
 }
 
+function getCurrentStruct(jsonI) {
+    let thisConfigOnject = jsonI;
+    for (let i = 1; i < currentPath.length; i++) {
+        if (Array.isArray(thisConfigOnject)) {
+            thisConfigOnject = thisConfigOnject[0];
+        } else {
+            thisConfigOnject = thisConfigOnject[currentPath[i]];
+        }
+    }
+    return thisConfigOnject;
+}
+
 function updatePageText() {
+    configObject = convertConfig(configObject);
     $("#Textarea").val(JSON.stringify(configObject, null, '\t'));
 }
 
@@ -83,7 +130,7 @@ function updatePagePath() {
     let thisConfigObject = getCurrentObject(configObject);
     let thisStuctObject = {}
     try {
-        thisStuctObject = getCurrentObject(defineObject.root);
+        thisStuctObject = getCurrentStruct(defineObject.root);
     } catch {
         thisStuctObject = null
     }
@@ -219,8 +266,8 @@ function deleteKey(event, keyName) {
     } else {
         delete thisConfigObject[keyName];
     }
-    updatePagePath();
     updatePageText();
+    updatePagePath();
 }
 
 function appendKey(keyName, valueType) {
@@ -243,8 +290,8 @@ function appendKey(keyName, valueType) {
         default:
             thisConfigObject[keyName] = valueType;
     }
-    updatePagePath();
     updatePageText();
+    updatePagePath();
 }
 
 function customOnfocus() {

@@ -19,7 +19,7 @@ app.on('before-quit', function () {
 });
 
 function createWindow() {
-  tray = new Tray(path.join(__dirname, 'logo.ico'))
+  tray = new Tray(path.join(__dirname, 'logo.ico'));
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -28,14 +28,14 @@ function createWindow() {
     transparent: false,
     frame: false,
     minWidth: 400
-  })
+  });
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
-  }))
+  }));
 
   const contextMenu = Menu.buildFromTemplate([{
       label: 'Show App',
@@ -51,11 +51,14 @@ function createWindow() {
       }
     }
   ]);
-  tray.setToolTip('V2ray Electron')
-  tray.setContextMenu(contextMenu)
+  tray.on('double-click', () => {
+    mainWindow.show()
+  });
+  tray.setToolTip('V2ray Electron');
+  tray.setContextMenu(contextMenu);
 
-  mainWindow.on('resize', updateReply)
-  mainWindow.on('move', updateReply)
+  mainWindow.on('resize', updateReply);
+  mainWindow.on('move', updateReply);
 
   function updateReply() {
 

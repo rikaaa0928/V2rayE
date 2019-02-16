@@ -4,7 +4,7 @@ module.exports = {
     parseConfigFile: function (name) {
         let err, data = fs.readFileSync(name, 'utf8');
         if (err) throw err;
-        return JSON.parse(data)
+        return JSON.parse(data);
     },
     parseValue: function (data) {
         if (data == "" || data == " ") {
@@ -25,13 +25,11 @@ module.exports = {
         return String(data)
     },
     saveToFile: function (file, data) {
-        let state = true;
-        fs.writeFile(file, data, function (err) {
-            if (err) {
-                state = false;
-                return console.error(err);
-            }
-        });
-        return state;
+        try {
+            fs.writeFileSync(file, data);
+            return true;
+        } catch {
+            return false;
+        }
     }
 };

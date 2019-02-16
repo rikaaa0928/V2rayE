@@ -10,14 +10,14 @@ const BrowserWindow = require('electron').remote.BrowserWindow;
 const parseConfigFile = require('./tools').parseConfigFile;
 const saveToFile = require('./tools').saveToFile;
 const path = require('path');
-let PORTABLE_EXECUTABLE_DIR = '';
+let REAL_DIR = '';
 if (remote.process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
-    PORTABLE_EXECUTABLE_DIR = __dirname
+    REAL_DIR = __dirname
 } else {
-    PORTABLE_EXECUTABLE_DIR = remote.process.env.PORTABLE_EXECUTABLE_DIR
+    REAL_DIR = remote.process.env.PORTABLE_EXECUTABLE_DIR
 }
-let guiConfigFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'guiConfig.json');
-let guiConfig = parseConfigFile(guiConfigFilePath);
+let guiConfigFilePath = path.join(REAL_DIR, 'guiConfig.json');
+let guiConfig = null;
 const tbody = $("tbody");
 let runningProcess = [];
 const tmp = tbody.html();
@@ -87,6 +87,9 @@ function getPorts(conf) {
         if (str.length > 0) {
             str = str.substring(0, str.length - 1);
         }
+        if (str.length <= 0) {
+            str = "undefined";
+        }
         return str;
     }
     return "undefined";
@@ -101,7 +104,7 @@ function updateList(obj) {
         c.find("th").eq(0)[0].innerText = i + 1;
         let tds = c.find("td");
         tds.eq(0)[0].innerText = obj.servers[i].name;
-        let conf = parseConfigFile(path.join(PORTABLE_EXECUTABLE_DIR, obj.servers[i].file));
+        let conf = parseConfigFile(path.join(REAL_DIR, obj.servers[i].file));
         try {
             tds.eq(1)[0].innerText = getPorts(conf);
         } catch {
@@ -128,7 +131,6 @@ function updateList(obj) {
             if ($("#delete" + i).html() != "Really?") {
                 penddinDelete.push("#delete" + i);
                 $("#delete" + i).html("Really?");
-                console.log(penddinDelete);
             } else {
                 deleteConfig(i);
             }
@@ -137,15 +139,15 @@ function updateList(obj) {
 }
 
 function deleteConfig(i) {
-    fs.unlinkSync(path.join(PORTABLE_EXECUTABLE_DIR, guiConfig.servers[i].file));
+    fs.unlinkSync(path.join(REAL_DIR, guiConfig.servers[i].file));
     guiConfig.servers.splice(i, 1);
     saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
     init();
 }
 
 function startServer(fileName, i) {
-    let exePath = path.join(PORTABLE_EXECUTABLE_DIR, 'core/v2ray');
-    let confPath = path.join(PORTABLE_EXECUTABLE_DIR, fileName);
+    let exePath = path.join(REAL_DIR, 'core/v2ray');
+    let confPath = path.join(REAL_DIR, fileName);
     $("#status" + i).html("Running");
     runningProcess.push(i);
     childProcess[fileName] = spawn(exePath, ['-config', confPath]);

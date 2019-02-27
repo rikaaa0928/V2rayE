@@ -11,5 +11,5 @@
 	],
 	"auto": 1,
 	"startup": true,
-	"min": true
+	"min": false
 }

@@ -24,6 +24,7 @@ const tmp = tbody.html();
 const {
     spawn
 } = require('child_process');
+const ipc = require('electron').ipcRenderer;
 let childProcess = {};
 let penddinDelete = [];
 
@@ -152,11 +153,13 @@ function startServer(fileName, i) {
     runningProcess.push(i);
     childProcess[fileName] = spawn(exePath, ['-config', confPath]);
     childProcess[fileName].stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
+        //console.log(`stdout: ${data}`);
+        ipc.send("vclog", `${fileName.substring(0, fileName.lastIndexOf('.'))} : ${data}`);
     });
 
     childProcess[fileName].stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`);
+        //console.log(`stderr: ${data}`);
+        ipc.send("vclog", `${fileName.substring(0, fileName.lastIndexOf('.'))} : ${data}`);
     });
 
     childProcess[fileName].on('close', (code) => {
@@ -165,6 +168,8 @@ function startServer(fileName, i) {
         $("#status" + i).html("Not Running");
         delete childProcess[fileName]
     });
+    guiConfig.auto = i;
+    saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
 }
 
 function stopServer(fileName) {

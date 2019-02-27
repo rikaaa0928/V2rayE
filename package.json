@@ -30,6 +30,7 @@
             "!new.1.json",
             "!struct.json",
             "!main.1.js",
+            "!main.0.js",
             "!**/._*",
             "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
             "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",

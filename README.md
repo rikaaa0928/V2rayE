@@ -4,7 +4,7 @@ v2ray client and json config editor
 main.1.js为编辑器入口  
 main.js为软件主入口  
 
-v2ray-core放在core目录下  
+v2ray-core https://github.com/v2ray/v2ray-core 放在core目录下  
 
 struct.json用于定义输入结构，暂不完全，用户可自定义  
 

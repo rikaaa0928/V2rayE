@@ -87,6 +87,12 @@ function createWindow() {
             }
         },
         {
+            label: 'Update/Install Core',
+            click: function () {
+                mainWindow.webContents.send('update', 'update');
+            }
+        },
+        {
             label: 'Log',
             click: function () {
                 if (logWindow === null) {

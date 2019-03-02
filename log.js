@@ -5,12 +5,14 @@ ipc.send('allLog', "all");
 
 ipc.on('initLog', (event, arg) => {
     if (!Array.isArray(arg)) {
-        appendLog(arg);
+        appendInitLog(arg);
         return
     }
     for (let i = 0; i < arg.length; i++) {
-        appendLog(arg[i]);
+        appendInitLog(arg[i]);
     }
+    let card = $(".card")[0];
+    card.scrollTop = card.scrollHeight - card.clientHeight;
 });
 
 ipc.on('newLog', (event, arg) => {
@@ -18,8 +20,12 @@ ipc.on('newLog', (event, arg) => {
 });
 
 $(".card-body").html("");
-let card = $(".card")[0];
-card.scrollTop = card.scrollHeight - card.clientHeight;
+
+function appendInitLog(log) {
+    let h = $(".card-body").html();
+    let card = $(".card")[0];
+    $(".card-body").html(h + `<p>${log}</p>`);
+}
 
 function appendLog(log) {
     let h = $(".card-body").html();

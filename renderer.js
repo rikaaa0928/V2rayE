@@ -6,9 +6,11 @@ const fs = require('fs');
 const {
     remote
 } = window.require('electron');
+const request = require('request');
 const BrowserWindow = require('electron').remote.BrowserWindow;
-const parseConfigFile = require('./tools').parseConfigFile;
-const saveToFile = require('./tools').saveToFile;
+const tools = require('./tools');
+const parseConfigFile = tools.parseConfigFile;
+const saveToFile = tools.saveToFile;
 const path = require('path');
 let REAL_DIR = '';
 if (remote.process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
@@ -28,7 +30,75 @@ const ipc = require('electron').ipcRenderer;
 let childProcess = {};
 let penddinDelete = [];
 
+function init() {
+    guiConfig = parseConfigFile(guiConfigFilePath);
+    updateList();
+}
+
+init();
 //alert(__dirname + "\n" + remote.process.env.PORTABLE_EXECUTABLE_DIR + "\n" + remote.app.getAppPath()+ "\n" + remote.app.getAppPath("exe"))
+
+function checkUpdate(func) {
+    tools.remoteVersion((rv, jData, options) => {
+        tools.localF(path.join(REAL_DIR, "core", "v2ray.exe"), ['-version']).then((d) => {
+            let v = d.match(/([0-9]+\.)+[0-9]+/)[0];
+            if (v != rv && func == undefined) {
+                alert(`update available! ${v} to ${rv}`);
+                return;
+            }
+            if (v == rv && func != undefined) {
+                alert(`no need to update!\n ${v} & ${rv}`);
+                return;
+            }
+            if (func == undefined) {
+                return;
+            }
+            func(jData, options);
+        }, (e) => {
+            if (func == undefined) {
+                alert(`core error: ${e}`);
+                return;
+            }
+            func(jData, options);
+        });
+    });
+}
+
+checkUpdate()
+
+ipc.on("update", (event, arg) => {
+    /*tools.unzip(path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), path.join(REAL_DIR, "core"));
+    return;*/
+    checkUpdate((jData, options) => {
+        let old_url = options.url;
+        console.log(JSON.stringify(options));
+        for (let i = 0; i < jData.assets.length; i++) {
+            if (jData.assets[i].name == "v2ray-windows-64.zip") {
+                options.url = jData.assets[i].browser_download_url;
+                break;
+            }
+        }
+        if (old_url == options.url) {
+            alert("get download url error!");
+        }
+        request(options).on("error", (e) => {
+            alert(`error download with ${JSON.stringify(options)}`);
+        }).on("end", () => {
+            tools.unzip(path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), path.join(REAL_DIR, "core"));
+            //alert("downloaded.");
+            /*let list = runningProcess.slice();
+            console.log(runningProcess);
+            for (let i = 0; i < list.length; i++) {
+                stopServer(list[i]);
+            }
+            tools.unzip(path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), path.join(REAL_DIR, "core"));
+            for (let i = 0; i < list.length; i++) {
+                startServer(list[i]);
+            }
+            console.log(runningProcess);*/
+        }).pipe(fs.createWriteStream(path.join(REAL_DIR, "core", "v2ray-windows-64.zip")))
+    });
+});
 
 function configWindow(action) {
     const modalPath = path.join('file://', __dirname, 'config.html?x=' + action);
@@ -55,17 +125,10 @@ $("body").on("click", function () {
     }
 });
 
-function init() {
-    guiConfig = parseConfigFile(guiConfigFilePath);
-    updateList(guiConfig);
-}
-
-init();
-
 if (guiConfig.auto != undefined && guiConfig.auto >= 0) {
     let i = guiConfig.auto;
     let fileName = guiConfig.servers[i].file;
-    startServer(fileName, i);
+    startServer(i);
 }
 
 function getPorts(conf) {
@@ -96,16 +159,16 @@ function getPorts(conf) {
     return "undefined";
 }
 
-function updateList(obj) {
+function updateList() {
     //let ftr = $("tbody tr:first");
     tbody.html("");
-    for (let i = 0; i < obj.servers.length; i++) {
+    for (let i = 0; i < guiConfig.servers.length; i++) {
         tbody.append(tmp);
         let c = tbody.find("tr").last();
         c.find("th").eq(0)[0].innerText = i + 1;
         let tds = c.find("td");
-        tds.eq(0)[0].innerText = obj.servers[i].name;
-        let conf = parseConfigFile(path.join(REAL_DIR, obj.servers[i].file));
+        tds.eq(0)[0].innerText = guiConfig.servers[i].name;
+        let conf = parseConfigFile(path.join(REAL_DIR, guiConfig.servers[i].file));
         try {
             tds.eq(1)[0].innerText = getPorts(conf);
         } catch {
@@ -117,10 +180,10 @@ function updateList(obj) {
             $("#status" + i).html("Running");
         }
         $(tds.eq(2)[0]).on("click", function () {
-            if (childProcess[obj.servers[i].file] == undefined) {
-                startServer(obj.servers[i].file, i);
+            if (childProcess[guiConfig.servers[i].file] == undefined) {
+                startServer(i);
             } else {
-                stopServer(obj.servers[i].file);
+                stopServer(i);
             }
         });
         $(tds.eq(3)[0]).find("button:first").on("click", function () {
@@ -146,7 +209,8 @@ function deleteConfig(i) {
     init();
 }
 
-function startServer(fileName, i) {
+function startServer(i) {
+    let fileName = guiConfig.servers[i].file;
     let exePath = path.join(REAL_DIR, 'core/v2ray');
     let confPath = path.join(REAL_DIR, fileName);
     $("#status" + i).html("Running");
@@ -158,13 +222,18 @@ function startServer(fileName, i) {
     });
 
     childProcess[fileName].stderr.on('data', (data) => {
-        //console.log(`stderr: ${data}`);
+        console.error(`stderr: ${data}`);
         ipc.send("vclog", `${fileName.substring(0, fileName.lastIndexOf('.'))} : ${data}`);
     });
-
+    childProcess[fileName].on('error', (code) => {
+        runningProcess.splice(runningProcess.indexOf(i)[0], 1);
+        console.error(`child process ${i} exited with code ${code}; left ${runningProcess}`);
+        $("#status" + i).html("Not Running");
+        delete childProcess[fileName]
+    });
     childProcess[fileName].on('close', (code) => {
         runningProcess.splice(runningProcess.indexOf(i)[0], 1);
-        console.log(`child process exited with code ${code}`);
+        console.log(`child process ${i} exited with code ${code}; left ${runningProcess}`);
         $("#status" + i).html("Not Running");
         delete childProcess[fileName]
     });
@@ -172,6 +241,7 @@ function startServer(fileName, i) {
     saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
 }
 
-function stopServer(fileName) {
+function stopServer(i) {
+    let fileName = guiConfig.servers[i].file;
     childProcess[fileName].kill();
 }

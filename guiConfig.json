@@ -9,7 +9,7 @@
 			"name": "new.1"
 		}
 	],
-	"auto": 1,
+	"auto": 0,
 	"startup": true,
 	"min": false
 }

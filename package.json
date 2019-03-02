@@ -1,12 +1,11 @@
 {
     "name": "v2ray_electron",
     "productName": "v2ray electron client",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "main": "main.js",
     "devDependencies": {
         "electron": "4.0.6",
-        "electron-builder": "^20.38.5",
-        "jquery": "^3.3.1"
+        "electron-builder": "^20.38.5"
     },
     "build": {
         "appId": "network.bilibili.v2raye",
@@ -45,6 +44,7 @@
         "postinstall": "electron-builder install-app-deps"
     },
     "dependencies": {
-        "jquery": "^3.3.1"
+        "jquery": "^3.3.1",
+        "request": "^2.88.0"
     }
 }

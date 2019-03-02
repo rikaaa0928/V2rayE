@@ -1,7 +1,7 @@
 {
     "name": "v2ray_electron",
     "productName": "v2ray electron client",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "main": "main.js",
     "devDependencies": {
         "electron": "4.0.6",

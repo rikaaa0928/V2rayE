@@ -81,7 +81,7 @@ module.exports = {
             };
             request(options, function (error, response, body) {
                 //console.log('error:', error); // Print the error if one occurred
-                if (error != null) {
+                if (error != null && func != undefined) {
                     alert(error);
                 }
                 console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
@@ -95,7 +95,7 @@ module.exports = {
         });
     },
     unzip: function (source, target) {
-        require('child_process').exec(`start "" ${target}`);
+        require('child_process').exec(`start "" "${target}"`);
         /*try {
             fs.createReadStream(source).on("error", (e) => {
                 alert(e);

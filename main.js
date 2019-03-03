@@ -87,12 +87,6 @@ function createWindow() {
             }
         },
         {
-            label: 'Update/Install Core',
-            click: function () {
-                mainWindow.webContents.send('update', 'update');
-            }
-        },
-        {
             label: 'Log',
             click: function () {
                 if (logWindow === null) {
@@ -100,6 +94,18 @@ function createWindow() {
                 } else {
                     logWindow.show();
                 }
+            }
+        },
+        {
+            label: 'Update/Install Core',
+            click: function () {
+                mainWindow.webContents.send('update', 'update');
+            }
+        },
+        {
+            label: 'DevTools',
+            click: function () {
+                mainWindow.webContents.openDevTools();
             }
         },
         {

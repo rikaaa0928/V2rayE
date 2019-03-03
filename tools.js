@@ -64,7 +64,7 @@ module.exports = {
             ]);
     },
     localF: local,
-    remoteVersion: function (func) {
+    remoteVersion: function (func, firstRun) {
         this.localProxy().then((p) => {
             p = p.replace(/(\r\n|\n|\r)/gm, "");
             let ip = p.split(":")[0];
@@ -81,14 +81,14 @@ module.exports = {
             };
             request(options, function (error, response, body) {
                 //console.log('error:', error); // Print the error if one occurred
-                if (error != null && func != undefined) {
+                if (error != null && !firstRun) {
                     alert(error);
                 }
                 console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
                 //console.log('body:', body); // Print the HTML for the Google homepage.
-                jData = JSON.parse(body);
-                let v = jData.tag_name.substring(1);
                 if (func != undefined) {
+                    jData = JSON.parse(body);
+                    let v = jData.tag_name.substring(1);
                     func(v, jData, options);
                 }
             });

@@ -38,30 +38,30 @@ function init() {
 init();
 //alert(__dirname + "\n" + remote.process.env.PORTABLE_EXECUTABLE_DIR + "\n" + remote.app.getAppPath()+ "\n" + remote.app.getAppPath("exe"))
 
-function checkUpdate(func) {
+function checkUpdate(downFunc) {
     tools.remoteVersion((rv, jData, options) => {
         tools.localF(path.join(REAL_DIR, "core", "v2ray.exe"), ['-version']).then((d) => {
             let v = d.match(/([0-9]+\.)+[0-9]+/)[0];
-            if (v != rv && func == undefined) {
+            if (v != rv && downFunc == undefined) {
                 alert(`update available! ${v} to ${rv}`);
                 return;
             }
-            if (v == rv && func != undefined) {
+            if (v == rv && downFunc != undefined) {
                 alert(`no need to update!\n ${v} & ${rv}`);
                 return;
             }
-            if (func == undefined) {
+            if (downFunc == undefined) {
                 return;
             }
-            func(jData, options);
+            downFunc(jData, options);
         }, (e) => {
-            if (func == undefined) {
+            if (downFunc == undefined) {
                 alert(`core error: ${e}`);
                 return;
             }
-            func(jData, options);
+            downFunc(jData, options);
         });
-    });
+    }, downFunc == undefined);
 }
 
 checkUpdate()

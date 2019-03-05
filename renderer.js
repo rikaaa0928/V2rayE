@@ -14,9 +14,9 @@ const saveToFile = tools.saveToFile;
 const path = require('path');
 let REAL_DIR = '';
 if (remote.process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
-    REAL_DIR = __dirname
+    REAL_DIR = __dirname;
 } else {
-    REAL_DIR = remote.process.env.PORTABLE_EXECUTABLE_DIR
+    REAL_DIR = remote.process.env.PORTABLE_EXECUTABLE_DIR;
 }
 let guiConfigFilePath = path.join(REAL_DIR, 'guiConfig.json');
 let guiConfig = null;

@@ -85,7 +85,7 @@ function createWindow() {
     }));
 
     let EXE_LOC = process.execPath;
-    if (process.env.process.env.PORTABLE_EXECUTABLE_FILE != undefined) {
+    if (process.env.PORTABLE_EXECUTABLE_FILE != undefined) {
         EXE_LOC = process.env.PORTABLE_EXECUTABLE_FILE;
     }
 

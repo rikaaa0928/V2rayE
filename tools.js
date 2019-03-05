@@ -143,13 +143,15 @@ module.exports = {
         }
     },
     unzip: function (command, source, options, restartFunc) {
-        exec(`start "" "${options.cwd}"`);
+        // exec(`start "" "${options.cwd}"`);
         exec(`${command} ${source}`, options, (e, stdo, stde) => {
             restartFunc();
             if (e != undefined) {
                 console.error(e);
                 alert(e);
+                return;
             }
+            alert(stdo);
         });
         /*try {
             fs.createReadStream(source).on("error", (e) => {

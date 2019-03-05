@@ -66,38 +66,52 @@ function checkUpdate(downFunc) {
     }, downFunc == undefined);
 }
 
-checkUpdate()
+checkUpdate();
+
+let runningProcessCache = [];
+let coreUnpacking = false;
+let unzipCoreNeeded = false;
 
 function unpackCore() {
-    let list = runningProcess.slice();
-    console.log(runningProcess);
-    for (let i = 0; i < list.length; i++) {
-        stopServer(list[i]);
+    if (coreUnpacking) {
+        alert("unpacking");
+        return;
     }
-    let sTime = Date.now() / 1000;
-    console.log(remote.process.env.ComSpec);
-    setTimeout(() => {
-        while (runningProcess.length > 0) {
-            console.log(runningProcess.length, Date.now() / 1000 - sTime);
-            if (Date.now() / 1000 - sTime > 5) {
-                alert(`kill process time out! ${sTime} ${Date.now() / 1000 - sTime}`);
-                return;
-            }
+    coreUnpacking = true;
+    runningProcessCache = runningProcess.slice();
+    console.log(runningProcess);
+    for (let i = 0; i < runningProcessCache.length; i++) {
+        stopServer(runningProcessCache[i]);
+    }
+    if (runningProcess.length <= 0) {
+        unzipCore();
+    } else {
+        unzipCoreNeeded = true;
+    }
+
+    // console.log(remote.process.env.ComSpec);
+
+    /*while (runningProcess.length > 0) {
+        console.log(runningProcess.length, Date.now() / 1000 - sTime);
+        if (Date.now() / 1000 - sTime > 5) {
+            alert(`kill process time out! ${sTime} ${Date.now() / 1000 - sTime}`);
+            return;
         }
-        tools.unzip(`"${guiConfig.unzip.exe}" ${guiConfig.unzip.arg}`, path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), {
-            "cwd": path.join(REAL_DIR, "core"),
-            "shell": "C:\\Windows\\system32\\cmd.exe"
-        }, () => {
-            for (let i = 0; i < list.length; i++) {
-                startServer(list[i]);
-            }
-        });
-    }, 100);
+    }*/
+    /*tools.unzip(`"${guiConfig.unzip.exe}" ${guiConfig.unzip.arg}`, path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), {
+        "cwd": path.join(REAL_DIR, "core"),
+        "shell": "C:\\Windows\\system32\\cmd.exe"
+    }, () => {
+        for (let i = 0; i < runningProcessCache.length; i++) {
+            startServer(runningProcessCache[i]);
+        }
+    });*/
+
 }
 
 ipc.on("update", (event, arg) => {
-    /*unpackCore();
-    return;*/
+    unpackCore();
+    return;
     checkUpdate((jData, options) => {
         let old_url = options.url;
         console.log(JSON.stringify(options));
@@ -151,7 +165,7 @@ $("body").on("click", function () {
 if (guiConfig.auto != undefined && guiConfig.auto >= 0) {
     let i = guiConfig.auto;
     let fileName = guiConfig.servers[i].file;
-    startServer(i);
+    startServer(i, false);
 }
 
 function getPorts(conf) {
@@ -204,7 +218,7 @@ function updateList() {
         }
         $(tds.eq(2)[0]).on("click", function () {
             if (childProcess[guiConfig.servers[i].file] == undefined) {
-                startServer(i);
+                startServer(i, true);
             } else {
                 stopServer(i);
             }
@@ -232,7 +246,20 @@ function deleteConfig(i) {
     init();
 }
 
-function startServer(i) {
+function unzipCore() {
+    tools.unzip(`"${guiConfig.unzip.exe}" ${guiConfig.unzip.arg}`, path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), {
+        "cwd": path.join(REAL_DIR, "core"),
+        "shell": "C:\\Windows\\system32\\cmd.exe"
+    }, () => {
+        for (let i = 0; i < runningProcessCache.length; i++) {
+            startServer(runningProcessCache[i], false);
+        }
+        coreUnpacking = false;
+    });
+    unzipCoreNeeded = false;
+}
+
+function startServer(i, save) {
     let fileName = guiConfig.servers[i].file;
     let exePath = path.join(REAL_DIR, 'core/v2ray');
     let confPath = path.join(REAL_DIR, fileName);
@@ -250,21 +277,45 @@ function startServer(i) {
     });
     childProcess[fileName].on('error', (code) => {
         runningProcess.splice(runningProcess.indexOf(i)[0], 1);
-        console.error(`child process ${i} exited with code ${code}; left ${runningProcess}`);
+        console.error(`child process ${i} error with code ${code}; left ${runningProcess}`);
         $("#status" + i).html("Not Running");
-        delete childProcess[fileName]
+        delete childProcess[fileName];
+        if (runningProcess.length <= 0 && unzipCoreNeeded) {
+            unzipCore();
+        }
     });
     childProcess[fileName].on('close', (code) => {
         runningProcess.splice(runningProcess.indexOf(i)[0], 1);
         console.log(`child process ${i} exited with code ${code}; left ${runningProcess}`);
         $("#status" + i).html("Not Running");
-        delete childProcess[fileName]
+        65
+        delete childProcess[fileName];
+        if (runningProcess.length <= 0 && unzipCoreNeeded) {
+            unzipCore();
+        }
+        /*if (runningProcess.length <= 0 && unzipCoreNeeded) {
+            tools.unzip(`"${guiConfig.unzip.exe}" ${guiConfig.unzip.arg}`, path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), {
+                "cwd": path.join(REAL_DIR, "core"),
+                "shell": "C:\\Windows\\system32\\cmd.exe"
+            }, () => {
+                for (let i = 0; i < runningProcessCache.length; i++) {
+                    startServer(runningProcessCache[i]);
+                }
+                coreUnpacking = false;
+            });
+            unzipCoreNeeded = false;
+        }*/
     });
-    guiConfig.auto = i;
-    saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
+    childProcess[fileName].stdin.end();
+    if (save) {
+        guiConfig.auto = i;
+        saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
+    }
 }
 
 function stopServer(i) {
+    // console.log(`stopping ${i}`);
     let fileName = guiConfig.servers[i].file;
+    childProcess[fileName].stdin.end();
     childProcess[fileName].kill();
 }

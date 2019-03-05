@@ -1,12 +1,12 @@
 const fs = require('fs');
 const request = require('request');
 const exec = require('child_process').exec;
+const spawn = require('child_process').spawn;
 const AutoLaunch = require('auto-launch');
 const path = require('path');
 
 function local(string, list) {
     return new Promise((yes, no) => {
-        let spawn = require("child_process").spawn;
         try {
             let child = spawn(string, list);
             child.stdout.on("data", function (data) {
@@ -144,7 +144,25 @@ module.exports = {
     },
     unzip: function (command, source, options, restartFunc) {
         // exec(`start "" "${options.cwd}"`);
-        exec(`${command} ${source}`, options, (e, stdo, stde) => {
+        let child = spawn(`${command} ${source}`, options);
+        let str = "";
+        child.stdout.on("data", function (data) {
+            console.log(data.toString('utf8'));
+            str += data.toString('utf8') + "\n";
+        });
+        child.stderr.on("data", function (data) {
+            console.error(data.toString('utf8'));
+        });
+        child.on("error", function (data) {
+            console.error(data.toString('utf8'));
+            exec(`start "" "${options.cwd}"`);
+        });
+        child.on("exit", () => {
+            restartFunc();
+            alert(str);
+        })
+        child.stdin.end();
+        /*exec(`${command} ${source}`, options, (e, stdo, stde) => {
             restartFunc();
             if (e != undefined) {
                 console.error(e);
@@ -153,7 +171,7 @@ module.exports = {
                 return;
             }
             alert(stdo);
-        });
+        });*/
         /*try {
             fs.createReadStream(source).on("error", (e) => {
                 alert(e);

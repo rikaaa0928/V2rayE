@@ -37,6 +37,8 @@ function init() {
 
 init();
 //alert(__dirname + "\n" + remote.process.env.PORTABLE_EXECUTABLE_DIR + "\n" + remote.app.getAppPath()+ "\n" + remote.app.getAppPath("exe"))
+//console.log(remote.process.env.PORTABLE_EXECUTABLE_APP_FILENAME);
+//console.log(remote.process.env.PORTABLE_EXECUTABLE_FILE);
 
 function checkUpdate(downFunc) {
     tools.remoteVersion((rv, jData, options) => {
@@ -66,8 +68,35 @@ function checkUpdate(downFunc) {
 
 checkUpdate()
 
+function unpackCore() {
+    let list = runningProcess.slice();
+    console.log(runningProcess);
+    for (let i = 0; i < list.length; i++) {
+        stopServer(list[i]);
+    }
+    let sTime = Date.now() / 1000;
+    console.log(remote.process.env.ComSpec);
+    setTimeout(() => {
+        while (runningProcess.length > 0) {
+            console.log(runningProcess.length, Date.now() / 1000 - sTime);
+            if (Date.now() / 1000 - sTime > 5) {
+                alert(`kill process time out! ${sTime} ${Date.now() / 1000 - sTime}`);
+                return;
+            }
+        }
+        tools.unzip(`"${guiConfig.unzip.exe}" ${guiConfig.unzip.arg}`, path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), {
+            "cwd": path.join(REAL_DIR, "core"),
+            "shell": "C:\\Windows\\system32\\cmd.exe"
+        }, () => {
+            for (let i = 0; i < list.length; i++) {
+                startServer(list[i]);
+            }
+        });
+    }, 100);
+}
+
 ipc.on("update", (event, arg) => {
-    /*tools.unzip(path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), path.join(REAL_DIR, "core"));
+    /*unpackCore();
     return;*/
     checkUpdate((jData, options) => {
         let old_url = options.url;
@@ -84,20 +113,14 @@ ipc.on("update", (event, arg) => {
         request(options).on("error", (e) => {
             alert(`error download with ${JSON.stringify(options)}`);
         }).on("end", () => {
-            tools.unzip(path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), path.join(REAL_DIR, "core"));
-            //alert("downloaded.");
-            /*let list = runningProcess.slice();
+            unpackCore();
             console.log(runningProcess);
-            for (let i = 0; i < list.length; i++) {
-                stopServer(list[i]);
-            }
-            tools.unzip(path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), path.join(REAL_DIR, "core"));
-            for (let i = 0; i < list.length; i++) {
-                startServer(list[i]);
-            }
-            console.log(runningProcess);*/
         }).pipe(fs.createWriteStream(path.join(REAL_DIR, "core", "v2ray-windows-64.zip")))
     });
+});
+
+ipc.on("guiChange", (event, arg) => {
+    guiConfig = parseConfigFile(guiConfigFilePath);
 });
 
 function configWindow(action) {

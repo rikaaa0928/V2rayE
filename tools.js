@@ -1,5 +1,8 @@
 const fs = require('fs');
 const request = require('request');
+const exec = require('child_process').exec;
+const AutoLaunch = require('auto-launch');
+const path = require('path');
 
 function local(string, list) {
     return new Promise((yes, no) => {
@@ -95,8 +98,59 @@ module.exports = {
             });
         });
     },
-    unzip: function (source, target) {
-        require('child_process').exec(`start "" "${target}"`);
+    autoStart: function (pathName, set) {
+        let fileName = "";
+        if (fs.lstatSync(pathName).isDirectory()) {
+            let insides = fs.readdirSync(pathName);
+            for (let i = 0, item; item = insides[i]; i++) {
+                // do stuff with path
+                console.log(item);
+                if (item.match(/electron.*\.exe/g) != null || item.match(/v2ray.*\.exe/g) != null) {
+                    fileName = path.join(pathName, item);
+                }
+            }
+        } else {
+            fileName = pathName;
+        }
+        let veAutoLauncher = new AutoLaunch({
+            name: 'v2rayE',
+            path: path.join(pathName),
+        });
+        if (set) {
+            veAutoLauncher.isEnabled()
+                .then(function (isEnabled) {
+                    if (isEnabled) {
+                        return;
+                    }
+                    veAutoLauncher.enable();
+                })
+                .catch(function (err) {
+                    // handle error
+                    console.log(err);
+                });
+        } else {
+            veAutoLauncher.isEnabled()
+                .then(function (isEnabled) {
+                    if (!isEnabled) {
+                        return;
+                    }
+                    veAutoLauncher.disable();
+                })
+                .catch(function (err) {
+                    // handle error
+                    console.log(err);
+                });
+        }
+    },
+    unzip: function (command, source, options, restartFunc) {
+        exec(`start "" "${options.cwd}"`);
+        exec(`${command} ${source}`, options, (e, stdo, stde) => {
+            restartFunc();
+            if (e != undefined) {
+                console.error(e);
+                alert(e);
+            }
+        });
         /*try {
             fs.createReadStream(source).on("error", (e) => {
                 alert(e);

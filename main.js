@@ -3,11 +3,15 @@ const electron = require('electron');
 const app = electron.app;
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
+const MenuItem = electron.MenuItem;
 const Menu = electron.Menu;
 const Tray = electron.Tray;
 const path = require('path');
 const url = require('url');
-const parseConfigFile = require('./tools').parseConfigFile;
+const tools = require('./tools');
+const parseConfigFile = tools.parseConfigFile;
+const autoStart = tools.autoStart;
+const saveToFile = tools.saveToFile;
 const ipc = require('electron').ipcMain;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -80,6 +84,39 @@ function createWindow() {
         slashes: true
     }));
 
+    let EXE_LOC = process.execPath;
+    if (process.env.process.env.PORTABLE_EXECUTABLE_FILE != undefined) {
+        EXE_LOC = process.env.PORTABLE_EXECUTABLE_FILE;
+    }
+
+    let REAL_DIR = '';
+    if (process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
+        REAL_DIR = __dirname;
+    } else {
+        REAL_DIR = process.env.PORTABLE_EXECUTABLE_DIR;
+    }
+
+    let guiConfigFilePath = path.join(REAL_DIR, 'guiConfig.json');
+    let guiConfig = parseConfigFile(guiConfigFilePath);
+
+    let checkBox = new MenuItem({
+        label: 'AutoStart',
+        type: 'checkbox',
+        checked: false,
+        click: () => {
+            this.checked = !this.checked;
+            autoStart(EXE_LOC, this.checked);
+            guiConfig.startup = this.checked;
+            saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
+            mainWindow.webContents.send('guiChange', "");
+        }
+    });
+
+    if (guiConfig.startup) {
+        checkBox.checked = true;
+    }
+    autoStart(EXE_LOC, checkBox.checked);
+
     const contextMenu = Menu.buildFromTemplate([{
             label: 'Show App',
             click: function () {
@@ -108,6 +145,7 @@ function createWindow() {
                 mainWindow.webContents.openDevTools();
             }
         },
+        checkBox,
         {
             label: 'Quit',
             click: function () {
@@ -149,15 +187,6 @@ function createWindow() {
         mainWindow = null
     })
 
-    let PORTABLE_EXECUTABLE_DIR = '';
-    if (process.env.PORTABLE_EXECUTABLE_DIR == undefined) {
-        PORTABLE_EXECUTABLE_DIR = __dirname
-    } else {
-        PORTABLE_EXECUTABLE_DIR = process.env.PORTABLE_EXECUTABLE_DIR
-    }
-
-    let guiCOnfigFilePath = path.join(PORTABLE_EXECUTABLE_DIR, 'guiConfig.json');
-    let guiConfig = parseConfigFile(guiCOnfigFilePath);
     if (guiConfig.min) {
         mainWindow.hide();
     }

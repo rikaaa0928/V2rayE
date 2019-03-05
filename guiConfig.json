@@ -9,7 +9,11 @@
 			"name": "new.1"
 		}
 	],
+	"unzip": {
+		"exe": "C:\\Program Files\\7-Zip\\7z.exe",
+		"arg": "x -y"
+	},
 	"auto": 0,
-	"startup": true,
+	"startup": false,
 	"min": false
 }

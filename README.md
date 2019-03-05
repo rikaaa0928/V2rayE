@@ -6,6 +6,12 @@ main.js为软件主入口
 
 v2ray-core https://github.com/v2ray/v2ray-core 放在core目录下  
 
+主要功能:   
+配置编辑/管理器  
+开机自动启动    
+启动检查更新/手动更新Core   
+查看log
+
 struct.json用于定义输入结构，暂不完全，用户可自定义  
 
 guiConfig.json用于软件设置  

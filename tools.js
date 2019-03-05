@@ -149,6 +149,7 @@ module.exports = {
             if (e != undefined) {
                 console.error(e);
                 alert(e);
+                exec(`start "" "${options.cwd}"`);
                 return;
             }
             alert(stdo);

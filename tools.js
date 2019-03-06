@@ -4,6 +4,7 @@ const exec = require('child_process').exec;
 const spawn = require('child_process').spawn;
 const AutoLaunch = require('auto-launch');
 const path = require('path');
+const Winreg = require('winreg');
 
 function local(string, list) {
     return new Promise((yes, no) => {
@@ -65,6 +66,40 @@ module.exports = {
             ["-Command",
                 "(Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings').proxyServer"
             ]);
+    },
+    setProxy: function (str) {
+        let regKey = new Winreg({
+            hive: Registry.HKCU, // open registry hive HKEY_CURRENT_USER
+            key: '\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
+        });
+        if (str == undefined || str.length <= 0) {
+            regKey.set("ProxyEnable", Winreg.REG_DWORD, 0, (e) => {
+                if (e != undefined) {
+                    alert(e);
+                }
+            });
+            return;
+        }
+        regKey.set("ProxyEnable", Winreg.REG_DWORD, 1, (e) => {
+            alert(e);
+            return;
+        });
+        regKey.set("ProxyServer", Winreg.REG_SZ, str, (e) => {
+            alert(e);
+        });
+    },
+    getProxy: function (func) {
+        let regKey = new Winreg({
+            hive: Registry.HKCU, // open registry hive HKEY_CURRENT_USER
+            key: '\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
+        });
+        regKey.get("ProxyEnable", (e, d) => {
+            alert(e);
+            return;
+        });
+        regKey.set("ProxyServer", (e, d) => {
+            alert(e);
+        });
     },
     localF: local,
     remoteVersion: function (func, firstRun) {

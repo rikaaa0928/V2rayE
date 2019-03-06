@@ -1,8 +1,13 @@
 {
     "name": "v2ray_electron",
     "productName": "v2ray electron client",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "main": "main.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Evi1/V2rayE"
+    },
+    "license": "MIT",
     "devDependencies": {
         "electron": "^4.0.6",
         "electron-builder": "^20.38.5"
@@ -46,6 +51,7 @@
     "dependencies": {
         "jquery": "^3.3.1",
         "request": "^2.88.0",
-        "auto-launch": "^5.0.5"
+        "auto-launch": "^5.0.5",
+        "winreg": "^1.2.4"
     }
 }

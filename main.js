@@ -44,6 +44,16 @@ ipc.on("vclog", (event, arg) => {
     logWindow.webContents.send('newLog', arg);
 });
 
+/*let hPort = null;
+let setProxy = new MenuItem({
+    label: 'SetProxy: NA',
+    click: function () {
+        if (Number.isInteger(hPort) && mainWindow != null) {
+            mainWindow.webContents.send('setProxy', hPort);
+        }
+    }
+});*/
+
 function createLogWindow() {
     logWindow = new BrowserWindow({
         width: 600,
@@ -123,6 +133,7 @@ function createWindow() {
                 mainWindow.show()
             }
         },
+        //setProxy,
         {
             label: 'Log',
             click: function () {

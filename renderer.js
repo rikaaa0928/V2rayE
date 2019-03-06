@@ -88,30 +88,11 @@ function unpackCore() {
     } else {
         unzipCoreNeeded = true;
     }
-
-    // console.log(remote.process.env.ComSpec);
-
-    /*while (runningProcess.length > 0) {
-        console.log(runningProcess.length, Date.now() / 1000 - sTime);
-        if (Date.now() / 1000 - sTime > 5) {
-            alert(`kill process time out! ${sTime} ${Date.now() / 1000 - sTime}`);
-            return;
-        }
-    }*/
-    /*tools.unzip(`"${guiConfig.unzip.exe}" ${guiConfig.unzip.arg}`, path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), {
-        "cwd": path.join(REAL_DIR, "core"),
-        "shell": "C:\\Windows\\system32\\cmd.exe"
-    }, () => {
-        for (let i = 0; i < runningProcessCache.length; i++) {
-            startServer(runningProcessCache[i]);
-        }
-    });*/
-
 }
 
 ipc.on("update", (event, arg) => {
-    unpackCore();
-    return;
+    // unpackCore();
+    // return;
     checkUpdate((jData, options) => {
         let old_url = options.url;
         console.log(JSON.stringify(options));
@@ -164,7 +145,6 @@ $("body").on("click", function () {
 
 if (guiConfig.auto != undefined && guiConfig.auto >= 0) {
     let i = guiConfig.auto;
-    let fileName = guiConfig.servers[i].file;
     startServer(i, false);
 }
 
@@ -293,18 +273,6 @@ function startServer(i, save) {
         if (runningProcess.length <= 0 && unzipCoreNeeded) {
             unzipCore();
         }
-        /*if (runningProcess.length <= 0 && unzipCoreNeeded) {
-            tools.unzip(`"${guiConfig.unzip.exe}" ${guiConfig.unzip.arg}`, path.join(REAL_DIR, "core", "v2ray-windows-64.zip"), {
-                "cwd": path.join(REAL_DIR, "core"),
-                "shell": "C:\\Windows\\system32\\cmd.exe"
-            }, () => {
-                for (let i = 0; i < runningProcessCache.length; i++) {
-                    startServer(runningProcessCache[i]);
-                }
-                coreUnpacking = false;
-            });
-            unzipCoreNeeded = false;
-        }*/
     });
     childProcess[fileName].stdin.end();
     if (save) {

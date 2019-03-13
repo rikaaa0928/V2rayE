@@ -1,7 +1,7 @@
 {
     "name": "v2ray_electron",
     "productName": "v2ray electron client",
-    "version": "0.5.1",
+    "version": "0.6.0",
     "main": "main.js",
     "repository": {
         "type": "git",

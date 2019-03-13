@@ -67,39 +67,48 @@ module.exports = {
                 "(Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings').proxyServer"
             ]);
     },
-    setProxy: function (str) {
+    setProxy: function (item, str) {
         let regKey = new Winreg({
-            hive: Registry.HKCU, // open registry hive HKEY_CURRENT_USER
+            hive: Winreg.HKCU, // open registry hive HKEY_CURRENT_USER
             key: '\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
         });
         if (str == undefined || str.length <= 0) {
+            console.log("disable");
             regKey.set("ProxyEnable", Winreg.REG_DWORD, 0, (e) => {
                 if (e != undefined) {
-                    alert(e);
+                    item.label = e;
+                    return
                 }
+                item.checked = false;
+                item.label = 'Set System Proxy';
             });
             return;
         }
+        console.log("enable");
         regKey.set("ProxyEnable", Winreg.REG_DWORD, 1, (e) => {
-            alert(e);
-            return;
+            if (e != undefined) {
+                item.label = e;
+                return
+            }
+            item.label = 'Set System Proxy';
         });
         regKey.set("ProxyServer", Winreg.REG_SZ, str, (e) => {
-            alert(e);
+            if (e != undefined) {
+                item.label = e;
+                return
+            }
+            item.checked = true;
         });
     },
     getProxy: function (func) {
         let regKey = new Winreg({
-            hive: Registry.HKCU, // open registry hive HKEY_CURRENT_USER
+            hive: Winreg.HKCU, // open registry hive HKEY_CURRENT_USER
             key: '\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings'
         });
-        regKey.get("ProxyEnable", (e, d) => {
-            alert(e);
-            return;
-        });
-        regKey.set("ProxyServer", (e, d) => {
-            alert(e);
-        });
+        regKey.get("ProxyEnable", func);
+    },
+    openFile: function (path) {
+        exec('start ' + path);
     },
     localF: local,
     remoteVersion: function (func, firstRun) {

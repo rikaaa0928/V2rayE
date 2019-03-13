@@ -109,31 +109,22 @@ function createWindow() {
     let guiConfigFilePath = path.join(REAL_DIR, 'guiConfig.json');
     let guiConfig = parseConfigFile(guiConfigFilePath);
 
-    let checkBox = new MenuItem({
-        label: 'AutoStart',
-        type: 'checkbox',
-        checked: false,
-        click: () => {
-            this.checked = !this.checked;
-            autoStart(EXE_LOC, this.checked);
-            guiConfig.startup = this.checked;
-            saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
-            mainWindow.webContents.send('guiChange', "");
-        }
-    });
 
-    if (guiConfig.startup) {
-        checkBox.checked = true;
-    }
-    autoStart(EXE_LOC, checkBox.checked);
 
     const contextMenu = Menu.buildFromTemplate([{
+            label: 'App Settings',
+            click: function () {
+                tools.openFile(guiConfigFilePath);
+                mainWindow.hide();
+            }
+        },
+        {
             label: 'Show App',
             click: function () {
                 mainWindow.show()
+                mainWindow.webContents.send('guiChange', "");
             }
         },
-        //setProxy,
         {
             label: 'Log',
             click: function () {
@@ -156,7 +147,16 @@ function createWindow() {
                 mainWindow.webContents.openDevTools();
             }
         },
-        checkBox,
+        {
+            label: 'Set System Proxy',
+            type: 'checkbox',
+            checked: false
+        },
+        {
+            label: 'AutoStart',
+            type: 'checkbox',
+            checked: false
+        },
         {
             label: 'Quit',
             click: function () {
@@ -165,11 +165,43 @@ function createWindow() {
             }
         }
     ]);
+
     tray.on('double-click', () => {
         mainWindow.show()
     });
     tray.setToolTip('V2ray Electron');
     tray.setContextMenu(contextMenu);
+
+    tools.getProxy((e, d) => {
+        if (e != undefined) {
+            contextMenu.items[5].label = e;
+            return
+        }
+        if (Number(d.value) == 1) {
+            contextMenu.items[5].checked = true;
+        } else {
+            contextMenu.items[5].checked = false;
+        }
+        //tray.setContextMenu(contextMenu);
+    });
+    contextMenu.items[5].click = () => {
+        if (!contextMenu.items[5].checked) {
+            tools.setProxy(contextMenu.items[5], '127.0.0.1:' + guiConfig.http_port)
+        } else {
+            tools.setProxy(contextMenu.items[5])
+        }
+    };
+    contextMenu.items[6].click = () => {
+        contextMenu.items[6].checked = !contextMenu.items[6].checked;
+        autoStart(EXE_LOC, contextMenu.items[6].checked);
+        guiConfig.startup = contextMenu.items[6].checked;
+        saveToFile(guiConfigFilePath, JSON.stringify(guiConfig, null, '\t'));
+        mainWindow.webContents.send('guiChange', "");
+    };
+    if (guiConfig.startup) {
+        contextMenu.items[6].checked = true;
+    }
+    autoStart(EXE_LOC, contextMenu.items[6].checked);
 
     mainWindow.on('resize', updateReply);
     mainWindow.on('move', updateReply);

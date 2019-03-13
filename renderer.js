@@ -115,7 +115,7 @@ ipc.on("update", (event, arg) => {
 });
 
 ipc.on("guiChange", (event, arg) => {
-    guiConfig = parseConfigFile(guiConfigFilePath);
+    init();
 });
 
 function configWindow(action) {

@@ -65,8 +65,10 @@ function checkUpdate(downFunc) {
         });
     }, downFunc == undefined);
 }
+if (guiConfig.auto_check) {
+    checkUpdate();
+}
 
-checkUpdate();
 
 let runningProcessCache = [];
 let coreUnpacking = false;

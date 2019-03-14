@@ -108,7 +108,7 @@ module.exports = {
         regKey.get("ProxyEnable", func);
     },
     openFile: function (path) {
-        exec('start ' + path);
+        exec(`start "" "${path}"`);
     },
     localF: local,
     remoteVersion: function (func, firstRun) {

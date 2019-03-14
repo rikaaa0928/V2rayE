@@ -20,6 +20,7 @@ guiConfig.json用于软件设置
 "startup": bool, 开机启动  
 "min": bool， 自动最小化  
 "http_port": int， 系统代理端口  
+"auto_check": bool, 启动检查core更新   
 
 ![](https://github.com/Evi1/V2rayE/blob/master/img/editor1.PNG)  
 ![](https://github.com/Evi1/V2rayE/blob/master/img/editor2.PNG)  

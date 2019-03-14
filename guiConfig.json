@@ -1,6 +1,5 @@
 {
-	"servers": [
-		{
+	"servers": [{
 			"name": "default",
 			"file": "default.json"
 		},
@@ -16,5 +15,6 @@
 	"auto": 0,
 	"startup": false,
 	"min": false,
-	"http_port": 8080
+	"http_port": 8080,
+	"auto_check": false
 }

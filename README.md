@@ -25,4 +25,3 @@ guiConfig.json用于软件设置
 ![](https://github.com/Evi1/V2rayE/blob/master/img/editor1.PNG)  
 ![](https://github.com/Evi1/V2rayE/blob/master/img/editor2.PNG)  
 
-编辑器ref功能待实现  

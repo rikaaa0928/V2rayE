@@ -188,7 +188,8 @@ module.exports = {
     },
     unzip: function (command, source, options, restartFunc) {
         // exec(`start "" "${options.cwd}"`);
-        let child = spawn(`${command} ${source}`, options);
+        console.log(`${command} "${source}"`);
+        let child = spawn(`${command} "${source}"`, options);
         let str = "";
         child.stdout.on("data", function (data) {
             console.log(data.toString('utf8'));
